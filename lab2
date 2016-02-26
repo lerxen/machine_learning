@@ -1,0 +1,30 @@
+from numpy.linalg import inv
+import numpy
+
+
+def regression(x, y):
+    tr = x.transpose()
+    pr = numpy.dot(tr, x)
+    invr = inv(pr)
+    tr2 = numpy.dot(invr, tr)
+    beta = numpy.dot(tr2, y)
+    return beta
+
+
+def line_regression(x):
+    one = numpy.ones_like(x)
+    matrix = numpy.concatenate((one, x), axis=1)
+    return matrix
+
+
+def polinom_regression(x, n):
+    matrix1 = line_regression(x)
+    for i in range(2, n):
+        matrix1 = numpy.concatenate((matrix1, x**i), axis=1)
+    return matrix1
+
+
+x = numpy.array([[1], [3]])
+y = ([[5], [6]])
+
+print(regression(polinom_regression(x, 3), y))
