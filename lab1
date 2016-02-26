@@ -1,0 +1,21 @@
+def gradient(f, f1, x0):
+    e = 0.0000001
+    L = 0.01
+    x1 = x0
+    x2 = x1 - L * f1(x1)
+    while abs(x2 - x1) > e or abs(f(x2) - f(x1)) > e:
+        x1 = x2
+        x2 = x1 - L*f1(x1)
+        L = L/2
+    print x2
+    return f(x2)
+
+
+def f(x):
+    return x**3 - 4*x**2 + 2*x
+
+
+def f1(x):
+    return 3*x**2 - 8*x + 2
+
+print(gradient(f, f1, 0))
