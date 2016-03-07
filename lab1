@@ -1,21 +1,62 @@
-def gradient(f, f1, x0):
-    e = 0.0000001
-    L = 0.01
-    x1 = x0
-    x2 = x1 - L * f1(x1)
-    while abs(x2 - x1) > e or abs(f(x2) - f(x1)) > e:
-        x1 = x2
-        x2 = x1 - L*f1(x1)
-        L = L/2
-    print x2
-    return f(x2)
+__author__ = 'lerxen'
+import numpy as np
+import math
 
 
-def f(x):
-    return x**3 - 4*x**2 + 2*x
+def gradient_descent(vector, lyambda):
+    e = 0.1
+    result = np.zeros_like(vector)
+    for i in range(len(vector)):
+        result[i] = vector[i] - lyambda*(gradient(vector)[i])
+    while (distance(vector, result) > e) \
+            or (abs(rosenbrok_function(result) - rosenbrok_function(vector)) > e) \
+            or norm(gradient(vector)) > e:
+        vector = result
+        for i in range(len(vector)):
+            result[i] = vector[i] - lyambda*(gradient(vector)[i])
+    return result
 
 
-def f1(x):
-    return 3*x**2 - 8*x + 2
 
-print(gradient(f, f1, 0))
+def gradient(vector):
+    grade = np.zeros_like(vector)
+    for i in range(len(vector)):
+        if i == 0:
+            grade[0] = -2*(1-vector[0]) - 400*vector[0]*(vector[1] - vector[0]**2)
+        elif i == len(vector) - 1:
+            grade[len(vector) - 1] = 200*(vector[len(vector)-1] - vector[len(vector)-2]**2)
+        else:
+            grade[i] = 200*(vector[i] - vector[i-1]**2) - 2*(1-vector[i]) - 400*vector[i]*(vector[i+1] - vector[i]**2)
+    return grade
+
+
+def rosenbrok_function(vector):
+    f = 0
+    for i in range(len(vector) - 1):
+        f = f + (1 - vector[i])**2 + 100*(vector[i+1] - vector[i]**2)**2
+    return f
+
+
+def norm(vector):
+    res = math.sqrt(np.sum(vector**2))
+    return res
+
+
+def distance(vector1, vector2):
+    res = np.sum((vector1 - vector2)**2)
+    return res
+
+
+def decreasing_lyambda():
+    lyambda = 1
+    lyambda *= 0.0000001
+    return lyambda
+
+
+#def optimal_step_lyambda():
+
+
+x = np.array([2,3,2, 2, 1])
+y = np.array([3, 2, 2, 2, 2])
+print(gradient_descent(x, 0.1))
+
