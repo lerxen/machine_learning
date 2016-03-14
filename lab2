@@ -1,30 +1,80 @@
+__author__ = 'air'
 from numpy.linalg import inv
-import numpy
+import numpy as np
 
 
-def regression(x, y):
+def beta_search(x, y):
     tr = x.transpose()
-    pr = numpy.dot(tr, x)
+    pr = np.dot(x, tr)
     invr = inv(pr)
-    tr2 = numpy.dot(invr, tr)
-    beta = numpy.dot(tr2, y)
+    tr2 = np.dot(invr, x)
+    beta = np.dot(tr2, y)
     return beta
 
 
-def line_regression(x):
-    one = numpy.ones_like(x)
-    matrix = numpy.concatenate((one, x), axis=1)
-    return matrix
+def linear_regression(x, n):
+    ones = np.ones_like(x)
+    matrix = np.vstack((ones, x))
+    return beta_search(matrix, y)
 
 
-def polinom_regression(x, n):
-    matrix1 = line_regression(x)
+def polynomial_regression(x, n):
+    ones = np.ones_like(x)
+    matrix = x
     for i in range(2, n):
-        matrix1 = numpy.concatenate((matrix1, x**i), axis=1)
-    return matrix1
+        matrix = np.vstack((matrix, x**i))
+    matrix = np.vstack((ones, x))
+    return beta_search(matrix, y)
 
 
-x = numpy.array([[1], [3]])
-y = ([[5], [6]])
+def curvilinear_regression(x, n):
+    ones = np.ones_like(x)
+    matrix = x
+    functions = np.array([f_square, f_product1, f_product2, f_sum1, f_sum2, f_cube])
+    for i in range(len(functions)):
+        matrix = np.vstack((matrix, functions[i](x)))
+    matrix = np.vstack((ones, x))
+    return beta_search(matrix, y)
 
-print(regression(polinom_regression(x, 3), y))
+
+def f_square(x):
+    return x**2
+
+
+def f_product1(x):
+    return 3*x
+
+
+def f_product2(x):
+    return 2*x
+
+
+def f_sum1(x):
+    return x+5
+
+
+def f_sum2(x):
+    return x+1
+
+
+def f_cube(x):
+    return x**3
+
+
+# CV type depends on k: if k == len(x) => leave one out type of CV, if k == random number => k fold type of CV
+def cross_validation(x, k, n, j):
+    regressions = np.array([curvilinear_regression, linear_regression, polynomial_regression])
+    b = regressions[j](x, n)
+    err = 0
+    for i in range(1, k - 1):
+        x_one_left = np.concatenate((x[0:i], x[i+1:k]))
+        y = np.dot(x_one_left, b[1])
+        err += abs(np.sum(y - x[i]))
+    return err
+
+
+x = np.array([4, 8, 8, 4, 1])
+y = np.array([5, 6, 7, 1])
+z = np.array([4, 8, 4, 1])
+
+print(linear_regression(x, 0))
